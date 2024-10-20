@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FastAPI Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-messages {
+            height: 300px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+        #user-input {
+            width: 70%;
+            padding: 5px;
+        }
+        #send-button {
+            padding: 5px 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>FastAPI Chat Room</h1>
+    <div id="chat-messages"></div>
+    <input type="text" id="user-input" placeholder="Type your message...">
+    <button id="send-button">Send</button>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        // Generate a random client ID
+        const clientId = Math.floor(Math.random() * 1000);
+
+        const ws = new WebSocket(`ws://localhost:8000/ws/${clientId}`);
+
+        ws.onmessage = function(event) {
+            const message = document.createElement('div');
+            message.textContent = event.data;
+            chatMessages.appendChild(message);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        function sendMessage() {
+            if (userInput.value) {
+                ws.send(userInput.value);
+                userInput.value = '';
+            }
+        }
+
+        sendButton.onclick = sendMessage;
+
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
